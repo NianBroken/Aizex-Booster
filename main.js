@@ -2,7 +2,7 @@
 // @name         Aizex增强插件
 // @namespace    https://www.klaio.top/
 // @version      1.0.0
-// @description  为Aizex相关网站提供一系列增强功能，包括高级设置面板、积分显示、界面元素显隐控制、界面优化及自定义头像等。
+// @description  Aizex Booster 是一款专门为 Aizex 镜像站 开发的浏览器扩展插件。它提供了一系列实用的增强功能，包括实时积分显示、界面元素的显示与隐藏控制、整体界面布局优化及自定义头像等。这些功能能够有效提升用户的浏览体验，让界面使用更加流畅、高效且富有个性化特色。
 // @author       NianBroken
 // @match        *://*.mana-x.aizex.net/*
 // @match        *://*.arc-x.aizex.me/*
@@ -14,11 +14,13 @@
 // @connect      aizex.me
 // @run-at       document-start
 // @icon         https://aizex.me/favicon.ico
+// @homepageURL  https://github.com/NianBroken/Aizex-Booster
+// @supportURL   https://github.com/NianBroken/Aizex-Booster/issues
 // @copyright    Copyright © 2025 NianBroken. All rights reserved.
 // @license      Apache-2.0 license
-// @downloadURL https://update.greasyfork.org/scripts/537453/Aizex%E5%A2%9E%E5%BC%BA%E6%8F%92%E4%BB%B6.user.js
-// @updateURL https://update.greasyfork.org/scripts/537453/Aizex%E5%A2%9E%E5%BC%BA%E6%8F%92%E4%BB%B6.meta.js
 // ==/UserScript==
+
+
 
 (function () {
 	'use strict';
