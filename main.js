@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Aizex增强插件
 // @namespace    https://www.klaio.top/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Aizex Booster 是一款专门为 Aizex 镜像站 开发的浏览器扩展插件。它提供了一系列实用的增强功能，包括实时积分显示、界面元素的显示与隐藏控制、整体界面布局优化及自定义头像等。这些功能能够有效提升用户的浏览体验，让界面使用更加流畅、高效且富有个性化特色。
 // @author       NianBroken
 // @match        *://*.mana-x.aizex.net/*
@@ -32,7 +32,7 @@
 	const CONFIG = {
 		// --- 脚本基础信息 ---
 		SCRIPT_NAME: 'Aizex增强插件', // 脚本名称，用于日志输出等场合，方便识别。
-		SCRIPT_VERSION: '1.0.0', // 脚本版本号，用于日志输出和问题追踪。
+		SCRIPT_VERSION: '1.0.1', // 脚本版本号，用于日志输出和问题追踪。
 
 		// --- 目标元素选择器 (CSS Selectors) ---
 		// 这些选择器用于在目标网页上定位特定的HTML元素。
@@ -74,8 +74,8 @@
 		// 用于在油猴脚本管理器提供的存储中保存用户设置和缓存数据。
 		// 修改这些键名将导致用户之前保存的设置和数据无法被脚本识别。
 		STORAGE_KEYS: {
-			MAIN_SETTINGS: 'aizex_enhancer_settings_v1.0.0', // 主设置对象存储键
-			QUOTA_DATA: 'aizex_enhancer_quota_data_v1.0.0', // 积分数据对象存储键
+			MAIN_SETTINGS: 'aizex_enhancer_settings', // 主设置对象存储键
+			QUOTA_DATA: 'aizex_enhancer_quota_data', // 积分数据对象存储键
 		},
 
 		// --- API 相关配置 ---
