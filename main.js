@@ -50,7 +50,7 @@
 			// “隐藏侧边工具栏入口”功能还将尝试移除此选择器指向的状态侧边栏元素。
 			STATUS_SIDEBAR: "#StatusSidebar", // 新增：状态侧边栏的选择器
 			// “隐藏滚动至末尾按钮”功能将尝试移除此选择器指向的按钮。
-			SCROLL_TO_END_BUTTON: "#thread > div > div.flex.shrink.basis-auto.flex-col.overflow-hidden.-mb-\\(--composer-overlap-px\\).\\[--composer-overlap-px\\:24px\\].grow > div > div.sticky.bottom-6.z-10.flex.h-0.items-end.justify-center.motion-safe\\:transition-all.motion-safe\\:delay-300.motion-safe\\:duration-300.group-\\[\\:not\\(\\[data-scroll-from-end\\]\\)\\]\\/thread\\:scale-50.group-\\[\\:not\\(\\[data-scroll-from-end\\]\\)\\]\\/thread\\:opacity-0.group-\\[\\:not\\(\\[data-scroll-from-end\\]\\)\\]\\/thread\\:pointer-events-none.group-\\[\\:not\\(\\[data-scroll-from-end\\]\\)\\]\\/thread\\:duration-100.group-\\[\\:not\\(\\[data-scroll-from-end\\]\\)\\]\\/thread\\:delay-0 > button",
+			SCROLL_TO_END_BUTTON: "#thread > div > div.flex.shrink.basis-auto.flex-col.overflow-hidden.-mb-\\(--composer-overlap-px\\).\\[--composer-overlap-px\\:24px\\].grow > div > div > div.\\@thread-xl\\/thread\\:pt-header-height.mt-1\\.5.flex.flex-col.text-sm.md\\:pb-9 > div:nth-child(5) > button",
 			// “优化界面”功能将尝试移除此选择器指向的元素，并用一个占位符替换。
 			OPTIMIZE_UI_TARGET_ELEMENT: "#thread-bottom-container > div.text-token-text-secondary.relative.mt-auto.flex.min-h-8.w-full.items-center.justify-center.p-2.text-center.text-xs.md\\:px-\\[60px\\]",
 			// “自定义头像”功能将修改此选择器指向的<img>元素的src属性。
@@ -68,6 +68,7 @@
 			OVERLAY: 'aizex-enhancer-overlay',
 			QUOTA_PANEL_CONTAINER: 'aizex-enhancer-quota-panel',
 			OPTIMIZE_UI_PLACEHOLDER: 'aizex-enhancer-optimize-ui-placeholder',
+            HIDE_SIDEBAR_STYLE_TAG: 'aizex-enhancer-hide-sidebar-style', // 新增：用于隐藏侧边栏的<style>标签ID
 		},
 
 		// --- 本地存储键名 ---
@@ -154,7 +155,6 @@
 	// MutationObserver 实例，用于异步等待特定DOM元素的出现
 	let mainSettingsButtonObserver = null;
 	let pointsPanelTargetObserver = null;
-	let sidebarElementsObserver = null; // 修改：原 toggleButtonObserver 更名为 sidebarElementsObserver，用于观察侧边栏相关元素
 	let scrollToEndButtonObserver = null;
 	let optimizeUITargetObserver = null;
 	let customAvatarObserver = null;
@@ -664,128 +664,46 @@
 	// --- 功能模块: 隐藏侧边工具栏入口 (及状态侧边栏) ---
 	/**
 	 * @description 切换“隐藏侧边工具栏入口”功能的激活状态。
-	 * 此功能现在会隐藏 CONFIG.SELECTORS.SIDEBAR_TOGGLE_BUTTON 和 CONFIG.SELECTORS.STATUS_SIDEBAR。
-	 * @param {boolean} enable - true 表示激活功能，false 表示禁用。
+	 * 此功能现在会通过动态添加/移除CSS样式来隐藏/显示目标元素，实现立即生效。
+	 * @param {boolean} enable - true 表示激活功能（隐藏），false 表示禁用（显示）。
 	 */
 	function toggleHideSidebarEntryFeature(enable) {
 		const FN = 'toggleHideSidebarEntryFeature';
 		log(FN, `请求设置“隐藏侧边工具栏入口及状态侧边栏”功能为: ${enable}`);
 		isHideSidebarEntryFeatureActive = enable; // 更新全局状态标志
 
-		if (isHideSidebarEntryFeatureActive) {
-			log(FN, '  功能已激活。将调用 manageSidebarElementsVisibility 来处理目标元素的隐藏。');
-			manageSidebarElementsVisibility(); // 调用管理函数执行隐藏或启动观察器
-		} else {
-			log(FN, '  功能已禁用。如果 sidebarElementsObserver (原toggleButtonObserver) 正在运行，则将其停止。');
-			if (sidebarElementsObserver) {
-				sidebarElementsObserver.disconnect();
-				sidebarElementsObserver = null;
-				log(FN, '    sidebarElementsObserver 已成功停止。');
-			}
-			// 注意：当功能禁用时，被移除的元素不会被脚本自动恢复。
-			// 网页本身的逻辑可能会重新创建它们。
-		}
-		log(FN, `执行完毕。当前“隐藏侧边工具栏入口及状态侧边栏”功能状态 (isHideSidebarEntryFeatureActive): ${isHideSidebarEntryFeatureActive}`);
-	}
+		const styleId = CONFIG.ELEMENT_IDS.HIDE_SIDEBAR_STYLE_TAG;
+		let styleElement = document.getElementById(styleId);
 
-	/**
-	 * @description 管理侧边栏相关元素（切换按钮和状态侧边栏）的可见性。
-	 * 如果功能激活 (isHideSidebarEntryFeatureActive is true)，则尝试移除这些元素。
-	 * 如果元素当前不存在，则启动或确保 sidebarElementsObserver 正在运行以等待它们出现。
-	 * 此函数被 toggleHideSidebarEntryFeature 和 sidebarElementsObserver 的回调调用。
-	 */
-	function manageSidebarElementsVisibility() {
-		const FN = 'manageSidebarElementsVisibility';
-		log(FN, '开始管理侧边栏相关元素（切换按钮和状态侧边栏）的可见性。');
-
-		// 如果功能未激活，则确保观察器已停止，然后直接返回。
-		if (!isHideSidebarEntryFeatureActive) {
-			log(FN, '  “隐藏侧边工具栏入口及状态侧边栏”功能当前未激活。如果 sidebarElementsObserver 在运行，则停止它。');
-			if (sidebarElementsObserver) {
-				sidebarElementsObserver.disconnect();
-				sidebarElementsObserver = null;
-				log(FN, '    sidebarElementsObserver 已停止。');
-			}
-			return; // 功能未激活，不执行任何隐藏操作
-		}
-
-		log(FN, '  功能已激活，准备处理目标元素的隐藏。');
-		let allElementsFoundAndRemoved = true; // 假设所有目标元素都已找到并移除
-
-		// 1. 处理侧边栏切换按钮 (#toggleButton)
-		const toggleButton = document.querySelector(CONFIG.SELECTORS.SIDEBAR_TOGGLE_BUTTON);
-		if (toggleButton) {
-			log(FN, '  找到“侧边工具栏切换按钮”(#toggleButton)，准备将其从DOM中移除:', toggleButton);
-			try {
-				toggleButton.remove();
-				log(FN, '  “侧边工具栏切换按钮”(#toggleButton) 已成功移除。');
-			} catch (error) {
-				log(FN, '  移除“侧边工具栏切换按钮”(#toggleButton) 时发生错误:', error);
-				// 即使移除失败，也应认为它未被处理，以便观察器继续工作
-				allElementsFoundAndRemoved = false;
-			}
-		} else {
-			log(FN, '  当前DOM中未找到“侧边工具栏切换按钮”(#toggleButton)。');
-			allElementsFoundAndRemoved = false; // 标记至少有一个元素未找到
-		}
-
-		// 2. 处理状态侧边栏 (#StatusSidebar)
-		const statusSidebar = document.querySelector(CONFIG.SELECTORS.STATUS_SIDEBAR);
-		if (statusSidebar) {
-			log(FN, '  找到“状态侧边栏”(#StatusSidebar)，准备将其从DOM中移除:', statusSidebar);
-			try {
-				statusSidebar.remove();
-				log(FN, '  “状态侧边栏”(#StatusSidebar) 已成功移除。');
-			} catch (error) {
-				log(FN, '  移除“状态侧边栏”(#StatusSidebar) 时发生错误:', error);
-				allElementsFoundAndRemoved = false;
-			}
-		} else {
-			log(FN, '  当前DOM中未找到“状态侧边栏”(#StatusSidebar)。');
-			allElementsFoundAndRemoved = false; // 标记至少有一个元素未找到
-		}
-
-		// 根据是否所有元素都已处理，以及观察器的状态，决定是否启动/保持观察器
-		if (!allElementsFoundAndRemoved && isHideSidebarEntryFeatureActive) {
-			// 如果至少有一个目标元素未找到（或移除失败），且功能仍激活，则需要观察器
-			if (!sidebarElementsObserver) {
-				log(FN, '  至少一个侧边栏目标元素未找到或处理失败，且当前没有活动的 sidebarElementsObserver。将创建并启动一个新的 MutationObserver 等待这些元素出现。');
-				sidebarElementsObserver = new MutationObserver((mutationsList, obs) => {
-					// log(FN, 'sidebarElementsObserver: MutationObserver 回调被触发。'); // 此日志可能过于频繁
-					// 检查功能是否仍然激活
-					if (!isHideSidebarEntryFeatureActive) {
-						log(FN, '  sidebarElementsObserver 回调：但此时“隐藏侧边工具栏入口”功能已禁用。将停止此观察器。');
-						obs.disconnect(); // 停止观察
-						sidebarElementsObserver = null; // 清除引用
-						return;
-					}
-					// 只要功能激活且DOM有变动，就尝试重新管理这些元素的可见性
-					// 检查任一目标元素是否出现，如果出现则再次调用 manageSidebarElementsVisibility
-					// 这种检查可以简化为直接调用 manageSidebarElementsVisibility，它内部会处理查找和移除
-					log(FN, '  sidebarElementsObserver 回调：DOM发生变化，将再次调用 manageSidebarElementsVisibility 检查并处理侧边栏元素。');
-					manageSidebarElementsVisibility();
-				});
-				try {
-					sidebarElementsObserver.observe(document.documentElement, {
-						childList: true, // 监视子节点的添加或删除
-						subtree: true // 监视所有后代节点
-					});
-					log(FN, '  sidebarElementsObserver 已成功启动，正在监视整个文档的DOM变化以处理侧边栏相关元素。');
-				} catch (e) {
-					log(FN, '  严重错误: sidebarElementsObserver 启动失败:', e);
-					sidebarElementsObserver = null; // 确保启动失败时清除引用
-				}
+		if (enable) {
+			// 功能开启：如果样式不存在，则创建并添加
+			log(FN, '  功能已激活。将通过注入CSS样式来隐藏目标元素。');
+			if (!styleElement) {
+				const cssRules = `
+                    ${CONFIG.SELECTORS.SIDEBAR_TOGGLE_BUTTON},
+                    ${CONFIG.SELECTORS.STATUS_SIDEBAR} {
+                        display: none !important;
+                    }
+                `;
+				styleElement = document.createElement('style');
+				styleElement.id = styleId;
+				styleElement.textContent = cssRules;
+				(document.head || document.documentElement).appendChild(styleElement);
+				log(FN, `  已成功注入ID为 "${styleId}" 的style标签以隐藏侧边栏元素。`);
 			} else {
-				log(FN, '  至少一个侧边栏目标元素未找到或处理失败，但 sidebarElementsObserver 已在运行中。将继续等待元素出现。');
+				log(FN, `  ID为 "${styleId}" 的style标签已存在，无需重复注入。`);
 			}
-		} else if (allElementsFoundAndRemoved && sidebarElementsObserver) {
-			// 如果所有元素都已找到并移除，理论上可以停止观察器。
-			// 但为了应对元素可能被动态重新添加的情况（例如SPA导航），保持观察器运行是更稳健的选择，
-			// 确保即使元素被重新添加到DOM，它们也会被再次隐藏。
-			// 因此，此处不停止观察器，除非功能被禁用（已在函数开头处理）。
-			log(FN, '  所有侧边栏目标元素均已找到并处理。sidebarElementsObserver (如果运行) 将继续监视以防它们被重新添加。');
+		} else {
+			// 功能关闭：如果样式存在，则移除
+			log(FN, '  功能已禁用。将移除用于隐藏侧边栏元素的CSS样式。');
+			if (styleElement) {
+				styleElement.remove();
+				log(FN, `  已成功移除ID为 "${styleId}" 的style标签，侧边栏元素应恢复显示。`);
+			} else {
+				log(FN, '  未找到需要移除的style标签。');
+			}
 		}
-		log(FN, '执行完毕。');
+		log(FN, `执行完毕。当前功能状态 (isHideSidebarEntryFeatureActive): ${isHideSidebarEntryFeatureActive}`);
 	}
 
 
@@ -1920,8 +1838,8 @@
 				fetchQuotaData('URL发生变化'); // 获取最新积分
 			}
 			if (isHideSidebarEntryFeatureActive) {
-				log(FN, '    URL变化后，重新管理侧边栏相关元素的可见性。');
-				manageSidebarElementsVisibility(); // 确保侧边栏元素按设置隐藏
+				log(FN, '    URL变化后，重新应用隐藏侧边栏的逻辑。');
+				toggleHideSidebarEntryFeature(true); // 确保隐藏侧边栏的样式存在
 			}
 			if (isHideScrollToEndButtonFeatureActive) {
 				log(FN, '    URL变化后，重新管理“滚动至末尾”按钮的可见性。');
