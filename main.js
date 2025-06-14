@@ -70,7 +70,7 @@
 				hideMethod: "remove",
 			},
 			{
-				selector: `.border-token-border-default`,
+				selector: `button.text-token-text-secondary.border-token-border-default`,
 				hideMethod: "remove",
 			},
 		],
