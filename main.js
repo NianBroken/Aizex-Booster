@@ -7,6 +7,7 @@
 // @match        *://*.mana-x.aizex.net/*
 // @match        *://*.arc-x.aizex.me/*
 // @match        *://*.leopard-x.memofun.net/*
+// @match        *://*.stug-x.memofun.net/*
 // @grant        GM_addStyle
 // @run-at       document-start
 // @icon         https://aizex.me/favicon.ico
