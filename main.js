@@ -88,11 +88,11 @@
 				newContent: `NianBroken`,
 			},
 			{
-				selector: `.text-pretty.whitespace-pre-wrap`,
+				selector: `.text-page-header .text-pretty.whitespace-pre-wrap`,
 				newContent: `您好，NianBroken。`,
 			},
 			{
-				selector: `.text-token-text-secondary #chat_limit`,
+				selector: `.text-token-text-secondary .pointer-events-auto`,
 				newContent: `ChatGPT 也可能会犯错。请核查重要信息。`,
 			},
 		],
