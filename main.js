@@ -1,13 +1,16 @@
 // ==UserScript==
 // @name         Aizex增强插件
 // @namespace    https://www.klaio.top/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Aizex Booster 是一款专门为 Aizex 镜像站 开发的浏览器扩展插件。它提供了一系列实用的增强功能，包括界面元素的显示与隐藏控制、整体界面布局优化及自定义头像等。这些功能能够有效提升用户的浏览体验，让界面使用更加流畅、高效且富有个性化特色。
 // @author       NianBroken
 // @match        *://*.mana-x.aizex.net/*
-// @match        *://*.arc-x.aizex.me/*
+// @match        *://*.a.memofun.net/*
 // @match        *://*.leopard-x.memofun.net/*
-// @match        *://*.stug-x.memofun.net/*
+// @match        *://*.arc-c.aizex.me/*
+// @match        *://*.mana-c.aizex.net/*
+// @match        *://*.leopard-c.aizex.me/*
+// @match        *://*.stug-c.memofun.net/*
 // @grant        GM_addStyle
 // @run-at       document-start
 // @icon         https://aizex.me/favicon.ico
@@ -23,7 +26,6 @@
 	/**
 	 * @file Aizex增强插件
 	 * @author NianBroken
-	 * @version 1.0.1
 	 *
 	 * @description
 	 * 本脚本采用了一种高鲁棒性、高优先级的架构，以确保在动态内容网站上实现持久且稳定的DOM修改。
@@ -296,7 +298,7 @@
 	// ========================== 脚本执行入口 (Execution Entry Point) =====================
 	// ===================================================================================
 
-	logger.log("脚本启动，版本 1.0.1");
+	logger.log("脚本启动");
 
 	// 步骤 1: 立即注入CSS样式。
 	// 这是在`document-start`阶段执行的关键操作，目的是在任何元素被浏览器渲染之前，
