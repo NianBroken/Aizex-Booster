@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Aizex增强插件
 // @namespace    https://www.klaio.top/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Aizex Booster 是一款专门为 Aizex 镜像站 开发的浏览器扩展插件。它提供了一系列实用的增强功能，包括界面元素的显示与隐藏控制、整体界面布局优化及自定义头像等。这些功能能够有效提升用户的浏览体验，让界面使用更加流畅、高效且富有个性化特色。
 // @author       NianBroken
 // @match        *://*.mana-x.aizex.net/*
@@ -73,7 +73,15 @@
 				hideMethod: "remove",
 			},
 			{
-				selector: `button.text-token-text-secondary.border-token-border-default`,
+				selector: `#floatingMenuContainer #menuToggleButton`,
+				hideMethod: "remove",
+			},
+			{
+				selector: `.bg-token-bg-elevated-secondary #custom-sidebar-bottom-wrapper`,
+				hideMethod: "remove",
+			},
+			{
+				selector: `#thread .composer-parent #thread-bottom-container .relative button`,
 				hideMethod: "remove",
 			},
 		],
